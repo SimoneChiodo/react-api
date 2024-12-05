@@ -2,6 +2,10 @@ body {
     background-color: darkgray;
 }
 
+.mainContainer {
+    width: 75vw;
+}
+
 ul {
     list-style-type: none;
     padding: 0;
@@ -16,6 +20,12 @@ ul#articleContainer li {
 }
 ul#articleContainer li:last-child {
     border-bottom: none;
+}
+
+li img {
+    width: 100%;
+    max-width: 330px;
+    height: auto;
 }
 
 .underline-red {

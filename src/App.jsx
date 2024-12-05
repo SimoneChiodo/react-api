@@ -11,18 +11,7 @@ function App() {
     const [count, setCount] = useState(0);
 
     // Articles Array
-    const [articles, setArticles] = useState([
-        {
-            title: "Titolo",
-            author: "Autore",
-            status: "Bozza",
-            image: "https://picsum.photos/200",
-            description: "Descrizione",
-            genre: "Genere 1",
-            tags: ["Tag 1"],
-            publish: false,
-        },
-    ]);
+    const [articles, setArticles] = useState([]);
 
     const Index = () => {
         fetch("http://localhost:3000/posts", { method: "GET" })
@@ -30,13 +19,11 @@ function App() {
             .then((data) => {
                 setArticles(data);
             });
-        console.log(articles);
     };
-    Index();
 
     useEffect(() => {
-        console.log("eseguita");
-    }, [articles]);
+        Index();
+    }, []);
 
     // Form Data
     const [formFields, setFormFields] = useState({
@@ -161,7 +148,7 @@ function App() {
         <>
             <main className="d-flex flex-column align-items-center mt-5">
                 {/* Container */}
-                <div className="w-50">
+                <div className="mainContainer">
                     {/* WARNING TEXT (Default: empty) */}
                     <h1 className="underline-red text-center mb-3">
                         {warningText}
