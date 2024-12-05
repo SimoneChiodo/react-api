@@ -24,6 +24,16 @@ function App() {
         },
     ]);
 
+    const Index = () => {
+        fetch("http://localhost:3000/posts", { method: "GET" })
+            .then((res) => res.json())
+            .then((data) => {
+                setArticles(data);
+            });
+        console.log(articles);
+    };
+    Index();
+
     useEffect(() => {
         console.log("eseguita");
     }, [articles]);
