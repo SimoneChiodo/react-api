@@ -22,6 +22,29 @@ function App() {
             });
     };
 
+    const Store = (newArticle) => {
+        fetch("http://localhost:3000/posts", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                title: newArticle.title,
+                author: newArticle.author,
+                status: newArticle.status,
+                image: newArticle.image,
+                description: newArticle.description,
+                genre: newArticle.genre,
+                tags: newArticle.tags,
+                publish: newArticle.publish,
+            }),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+                setArticles(data);
+            });
+    };
+
     const Destroy = (id) => {
         fetch("http://localhost:3000/posts/" + id, { method: "DELETE" })
             .then((res) => res.json())
@@ -106,20 +129,8 @@ function App() {
         }
 
         // Add the new Article
-        const newArticles = [...articles];
-        newArticles.push({
-            id: getLastId(articles),
-            title: formFields.title,
-            author: formFields.author,
-            genre: formFields.genre,
-            status: formFields.status,
-            description: formFields.description,
-            image: formFields.image,
-            publish: formFields.publish,
-            tags: formFields.tags,
-            isBeingEdited: false,
-        });
-        setArticles(newArticles);
+        setWarningText(""); // Reset the warning
+        Store(formFields);
     }
 
     function handleFormChange(e) {
@@ -410,13 +421,8 @@ function App() {
                                         <Button
                                             key={"del-" + article.id}
                                             text={"🧺"}
-                                            handleStatusChange={
-                                                () => Destroy(article.id)
-                                                // deleteReactiveElementById(
-                                                //     articles,
-                                                //     setArticles,
-                                                //     article.id
-                                                // )
+                                            handleStatusChange={() =>
+                                                Destroy(article.id)
                                             }
                                         />
                                     </div>
