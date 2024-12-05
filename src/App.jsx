@@ -13,6 +13,7 @@ function App() {
     // Articles Array
     const [articles, setArticles] = useState([]);
 
+    // CRUD Method
     const Index = () => {
         fetch("http://localhost:3000/posts", { method: "GET" })
             .then((res) => res.json())
@@ -21,11 +22,20 @@ function App() {
             });
     };
 
+    const Destroy = (id) => {
+        fetch("http://localhost:3000/posts/" + id, { method: "DELETE" })
+            .then((res) => res.json())
+            .then((data) => {
+                setArticles(data);
+            });
+    };
+
+    // Load the articles on page load
     useEffect(() => {
         Index();
     }, []);
 
-    // Form Data
+    // Form Void Data
     const [formFields, setFormFields] = useState({
         title: "",
         author: "",
@@ -400,12 +410,13 @@ function App() {
                                         <Button
                                             key={"del-" + article.id}
                                             text={"🧺"}
-                                            handleStatusChange={() =>
-                                                deleteReactiveElementById(
-                                                    articles,
-                                                    setArticles,
-                                                    article.id
-                                                )
+                                            handleStatusChange={
+                                                () => Destroy(article.id)
+                                                // deleteReactiveElementById(
+                                                //     articles,
+                                                //     setArticles,
+                                                //     article.id
+                                                // )
                                             }
                                         />
                                     </div>
