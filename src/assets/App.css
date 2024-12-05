@@ -1,0 +1,23 @@
+body {
+    background-color: darkgray;
+}
+
+ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+ul#tagContainer li {
+    padding-right: 2rem;
+}
+ul#articleContainer li {
+    border-radius: 20px;
+    border-bottom: 1px solid gray;
+}
+ul#articleContainer li:last-child {
+    border-bottom: none;
+}
+
+.underline-red {
+    text-decoration: underline red;
+}
