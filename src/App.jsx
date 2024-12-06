@@ -7,6 +7,12 @@ import Pill from "./components/Pill";
 // Custom CSS
 import "./assets/App.css";
 
+// ! TODO:
+// - Aggiungere Modal per eliminazione
+// - Modificare le funzioni in funzioni asincrone
+// - Fare funzionare il metodo Edit
+// - Creare file .env
+
 function App() {
     const [count, setCount] = useState(0);
 
@@ -41,7 +47,7 @@ function App() {
         })
             .then((res) => res.json())
             .then((data) => {
-                setArticles(data);
+                Index();
             });
     };
 
@@ -49,7 +55,7 @@ function App() {
         fetch("http://localhost:3000/posts/" + id, { method: "DELETE" })
             .then((res) => res.json())
             .then((data) => {
-                setArticles(data);
+                Index();
             });
     };
 
@@ -58,7 +64,7 @@ function App() {
         Index();
     }, []);
 
-    // Form Void Data
+    // Form Void Sample Data
     const [formFields, setFormFields] = useState({
         title: "",
         author: "",
@@ -82,12 +88,6 @@ function App() {
     // On Form Submit
     function handleFormSubmit(e) {
         e.preventDefault();
-
-        // Check if input is not empty
-        if (Object.values(formFields).some((data) => data === "")) {
-            setWarningText("\nRiempire tutte le caselle!");
-            return;
-        }
 
         // Check if an element is being edited
         if (isEditing !== undefined) {
@@ -148,23 +148,6 @@ function App() {
         }
     }
 
-    // Get the Last ID of an Array
-    function getLastId(obj) {
-        let id = 0;
-        {
-            obj.map((element) => {
-                element.id >= id && (id = element.id + 1);
-            });
-        }
-        return id;
-    }
-
-    // Delete an element from an array
-    function deleteReactiveElementById(array, setFz, id) {
-        let newArray = [...array];
-        setFz(newArray.filter((element) => element.id !== id));
-    }
-
     return (
         <>
             <main className="d-flex flex-column align-items-center mt-5">
@@ -184,11 +167,12 @@ function App() {
                             </label>
 
                             <input
-                                type="text"
                                 onChange={handleFormChange}
+                                type="text"
                                 className="form-control"
                                 id="inputTitle"
                                 name="title"
+                                required
                             />
                         </div>
                         {/* Author Input */}
@@ -203,6 +187,7 @@ function App() {
                                 className="form-control"
                                 id="inputAuthor"
                                 name="author"
+                                required
                             />
                         </div>
                         {/* Genre Input */}
@@ -217,6 +202,7 @@ function App() {
                                 id="inputGenre"
                                 name="genre"
                                 defaultValue=""
+                                required
                             >
                                 <option value="" disabled>
                                     Scegliere...
@@ -238,6 +224,7 @@ function App() {
                                 id="inputStatus"
                                 name="status"
                                 defaultValue=""
+                                required
                             >
                                 <option value="" disabled>
                                     Scegliere...
@@ -260,6 +247,7 @@ function App() {
                                 className="form-control"
                                 id="inputDescription"
                                 name="description"
+                                required
                             ></textarea>
                         </div>
                         {/* Image Input */}
@@ -275,17 +263,11 @@ function App() {
                                 id="inputImage"
                                 name="image"
                                 defaultValue="https://picsum.photos/200"
+                                required
                             />
                         </div>
                         {/* Publish Input */}
                         <div className="col-12">
-                            {/* <label
-                                htmlFor="inputPublish"
-                                className="form-label"
-                            >
-                                Pubblicare l'articolo?
-                            </label> */}
-
                             <div className="form-check">
                                 <input
                                     type="checkbox"
@@ -294,6 +276,7 @@ function App() {
                                     onChange={handleFormChange}
                                     checked={formFields.publish}
                                     name="publish"
+                                    required
                                 />
                                 <label
                                     className="form-check-label"
@@ -421,9 +404,11 @@ function App() {
                                         <Button
                                             key={"del-" + article.id}
                                             text={"🧺"}
-                                            handleStatusChange={() =>
-                                                Destroy(article.id)
-                                            }
+                                            data-bs-toggle="modal"
+                                            data-bs-target="#destroyModal"
+                                            // handleStatusChange={() =>
+                                            //     // Destroy(article.id)
+                                            // }
                                         />
                                     </div>
                                 </li>
@@ -433,6 +418,59 @@ function App() {
                             <h2>Ancora nessun post...</h2>
                         )}
                     </ul>
+                    <Button
+                        text={"🧺"}
+                        data-bs-toggle="modal"
+                        data-bs-target="#destroyModal"
+                        // handleStatusChange={() =>
+                        //     // Destroy(article.id)
+                        // }
+                    />
+                    {/* Modal Eliminazione */}
+                    <div
+                        className="modal fade"
+                        id="destroyModal"
+                        tabIndex="-1"
+                        aria-labelledby="destroyModalLabel"
+                        aria-hidden="true"
+                    >
+                        <div className="modal-dialog">
+                            <div className="modal-content">
+                                <div className="modal-header">
+                                    <h1
+                                        className="modal-title fs-5 text-danger"
+                                        id="destroyModalLabel"
+                                    >
+                                        Eliminazione articolo
+                                    </h1>
+                                    <button
+                                        type="button"
+                                        className="btn-close"
+                                        data-bs-dismiss="modal"
+                                        aria-label="Close"
+                                    ></button>
+                                </div>
+
+                                <div className="modal-body">...</div>
+
+                                <div className="modal-footer">
+                                    <button
+                                        type="button"
+                                        className="btn btn-secondary"
+                                        data-bs-dismiss="modal"
+                                    >
+                                        Close
+                                    </button>
+                                    <button
+                                        type="button"
+                                        className="btn btn-primary"
+                                    >
+                                        Save changes
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </main>
         </>
