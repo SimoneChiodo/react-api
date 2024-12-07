@@ -7,11 +7,13 @@ import Pill from "./components/Pill";
 // Custom CSS
 import "./assets/App.css";
 
+// API URL
+const postsApiUrl = import.meta.env.VITE_API_POSTS;
+
 // ! TODO:
 // - Aggiungere Modal per eliminazione
 // - Modificare le funzioni in funzioni asincrone
 // - Fare funzionare il metodo Edit
-// - Creare file .env
 
 function App() {
     const [count, setCount] = useState(0);
@@ -21,15 +23,15 @@ function App() {
 
     // CRUD Method
     const Index = () => {
-        fetch("http://localhost:3000/posts", { method: "GET" })
+        fetch(`${postsApiUrl}/posts`, { method: "GET" })
             .then((res) => res.json())
             .then((data) => {
                 setArticles(data);
             });
     };
 
-    const Store = (newArticle) => {
-        fetch("http://localhost:3000/posts", {
+    const Store = async (newArticle) => {
+        fetch(`${postsApiUrl}/posts`, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
@@ -45,15 +47,15 @@ function App() {
                 publish: newArticle.publish,
             }),
         })
-            .then((res) => res.json())
+            .then((res) => res)
             .then((data) => {
                 Index();
             });
     };
 
-    const Destroy = (id) => {
-        fetch("http://localhost:3000/posts/" + id, { method: "DELETE" })
-            .then((res) => res.json())
+    const Destroy = async (id) => {
+        fetch(`${postsApiUrl}/posts/${id}`, { method: "DELETE" })
+            .then((res) => res)
             .then((data) => {
                 Index();
             });
@@ -330,147 +332,155 @@ function App() {
                     {/* ARTICLES LIST */}
                     <ul id="articleContainer" className="mt-5">
                         {articles?.length ? (
-                            // Print the Array
-                            articles.map((article) => (
-                                <li
-                                    key={article.id}
-                                    className={
-                                        "border d-flex justify-content-between py-2 px-3 mb-2 " +
-                                        (article.isBeingEdited === true &&
-                                            "bg-secondary")
-                                    }
-                                >
-                                    {/* Article Image */}
-                                    <div>
-                                        <img
-                                            className="rounded-4"
-                                            src={article.image}
-                                            alt="image not found"
-                                        />
-                                    </div>
+                            <>
+                                {/* List of Posts */}
+                                {articles.map((article) => (
+                                    <li
+                                        key={article.id}
+                                        className={
+                                            "border d-flex justify-content-between py-2 px-3 mb-2 " +
+                                            (article.isBeingEdited === true &&
+                                                "bg-secondary")
+                                        }
+                                    >
+                                        {/* Article Image */}
+                                        <div>
+                                            <img
+                                                className="rounded-4"
+                                                src={article.image}
+                                                alt="image not found"
+                                            />
+                                        </div>
 
-                                    {/* Article Details */}
-                                    <div className="flex-grow-1 mx-2 py-2">
-                                        <p className="m-0 mb-1">
-                                            <b>{"Titolo:"}</b> {article.title}
-                                        </p>
-                                        <p className="m-0 mb-1">
-                                            <b>{"Autore:"}</b> {article.author}
-                                        </p>
-                                        <p className="m-0 mb-1">
-                                            <b>{"Genere:"}</b> {article.genre}
-                                        </p>
-                                        <p className="m-0">
-                                            <b>{"Stato:"}</b> {article.status}
-                                        </p>
-                                        <p className="m-0 mb-1">
-                                            <b>{"Descrizione:"}</b>{" "}
-                                            {article.description}
-                                        </p>
-                                        <p className="m-0 mb-1">
-                                            <b>{"Pubblicato:"}</b>{" "}
-                                            {article.publish === true
-                                                ? "Sì"
-                                                : "No"}
-                                        </p>
-                                        <p className="m-0 mb-1">
-                                            {article.tags.map((tag) => (
-                                                <Pill
-                                                    key={"pill-" + tag}
-                                                    text={tag}
-                                                />
-                                            ))}
-                                        </p>
-                                    </div>
+                                        {/* Article Details */}
+                                        <div className="flex-grow-1 mx-2 py-2">
+                                            <p className="m-0 mb-1">
+                                                <b>{"Titolo:"}</b>{" "}
+                                                {article.title}
+                                            </p>
+                                            <p className="m-0 mb-1">
+                                                <b>{"Autore:"}</b>{" "}
+                                                {article.author}
+                                            </p>
+                                            <p className="m-0 mb-1">
+                                                <b>{"Genere:"}</b>{" "}
+                                                {article.genre}
+                                            </p>
+                                            <p className="m-0">
+                                                <b>{"Stato:"}</b>{" "}
+                                                {article.status}
+                                            </p>
+                                            <p className="m-0 mb-1">
+                                                <b>{"Descrizione:"}</b>{" "}
+                                                {article.description}
+                                            </p>
+                                            <p className="m-0 mb-1">
+                                                <b>{"Pubblicato:"}</b>{" "}
+                                                {article.publish === true
+                                                    ? "Sì"
+                                                    : "No"}
+                                            </p>
+                                            <p className="m-0 mb-1">
+                                                {article.tags.map((tag) => (
+                                                    <Pill
+                                                        key={"pill-" + tag}
+                                                        text={tag}
+                                                    />
+                                                ))}
+                                            </p>
+                                        </div>
 
-                                    {/* Utility Buttons */}
-                                    <div className="d-flex align-items-center">
-                                        {/* Pulsante Modifica */}
-                                        <Button
-                                            key={"mod-" + article.id}
-                                            text={"✏"}
-                                            handleStatusChange={() => {
-                                                setIsEditing(article.id);
-                                                setWarningText(
-                                                    "Modifica dell'elemento \"" +
-                                                        article.title +
-                                                        '"'
-                                                );
-                                                article.isBeingEdited = true;
-                                            }}
-                                        />
+                                        {/* Utility Buttons */}
+                                        <div className="d-flex align-items-center">
+                                            {/* Pulsante Modifica */}
+                                            <Button
+                                                key={"mod-" + article.id}
+                                                text={"✏"}
+                                                handleStatusChange={() => {
+                                                    setIsEditing(article.id);
+                                                    setWarningText(
+                                                        "Modifica dell'elemento \"" +
+                                                            article.title +
+                                                            '"'
+                                                    );
+                                                    article.isBeingEdited = true;
+                                                }}
+                                            />
 
-                                        {/* Pulsante Elimina */}
-                                        <Button
-                                            key={"del-" + article.id}
-                                            text={"🧺"}
-                                            data-bs-toggle="modal"
-                                            data-bs-target="#destroyModal"
-                                            // handleStatusChange={() =>
-                                            //     // Destroy(article.id)
-                                            // }
-                                        />
+                                            {/* Pulsante Elimina */}
+                                            <button
+                                                key={"del-" + article.id}
+                                                type="button"
+                                                className="mx-1"
+                                                data-bs-toggle="modal"
+                                                data-bs-target={`#destroyModal-${article.id}`}
+                                            >
+                                                🧺
+                                            </button>
+                                        </div>
+                                    </li>
+                                ))}
+
+                                {/* Modal Eliminazione */}
+                                {articles.map((article) => (
+                                    <div
+                                        className="modal fade"
+                                        id={`destroyModal-${article.id}`}
+                                        tabIndex="-1"
+                                        aria-labelledby="desotryModalLabel"
+                                        aria-hidden="true"
+                                        key={article.id}
+                                    >
+                                        <div className="modal-dialog">
+                                            <div className="modal-content">
+                                                <div className="modal-header">
+                                                    <h1
+                                                        className="modal-title fs-5 text-danger"
+                                                        id="desotryModalLabel"
+                                                    >
+                                                        Eliminazione Articolo
+                                                    </h1>
+                                                    <button
+                                                        type="button"
+                                                        className="btn-close"
+                                                        data-bs-dismiss="modal"
+                                                        aria-label="Close"
+                                                    ></button>
+                                                </div>
+                                                <div className="modal-body">
+                                                    Stai eliminando l'articolo "
+                                                    {article.title}", sei
+                                                    sicuro?
+                                                </div>
+                                                <div className="modal-footer">
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-secondary"
+                                                        data-bs-dismiss="modal"
+                                                    >
+                                                        No
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className="btn btn-danger"
+                                                        data-bs-dismiss="modal"
+                                                        onClick={() =>
+                                                            Destroy(article.id)
+                                                        }
+                                                    >
+                                                        Sì
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
-                                </li>
-                            ))
+                                ))}
+                            </>
                         ) : (
                             // Print Empty Array Message
                             <h2>Ancora nessun post...</h2>
                         )}
                     </ul>
-                    <Button
-                        text={"🧺"}
-                        data-bs-toggle="modal"
-                        data-bs-target="#destroyModal"
-                        // handleStatusChange={() =>
-                        //     // Destroy(article.id)
-                        // }
-                    />
-                    {/* Modal Eliminazione */}
-                    <div
-                        className="modal fade"
-                        id="destroyModal"
-                        tabIndex="-1"
-                        aria-labelledby="destroyModalLabel"
-                        aria-hidden="true"
-                    >
-                        <div className="modal-dialog">
-                            <div className="modal-content">
-                                <div className="modal-header">
-                                    <h1
-                                        className="modal-title fs-5 text-danger"
-                                        id="destroyModalLabel"
-                                    >
-                                        Eliminazione articolo
-                                    </h1>
-                                    <button
-                                        type="button"
-                                        className="btn-close"
-                                        data-bs-dismiss="modal"
-                                        aria-label="Close"
-                                    ></button>
-                                </div>
-
-                                <div className="modal-body">...</div>
-
-                                <div className="modal-footer">
-                                    <button
-                                        type="button"
-                                        className="btn btn-secondary"
-                                        data-bs-dismiss="modal"
-                                    >
-                                        Close
-                                    </button>
-                                    <button
-                                        type="button"
-                                        className="btn btn-primary"
-                                    >
-                                        Save changes
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
             </main>
         </>
