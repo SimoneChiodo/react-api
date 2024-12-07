@@ -11,12 +11,26 @@ import "./assets/App.css";
 const postsApiUrl = import.meta.env.VITE_API_POSTS;
 
 // ! TODO:
-// - Aggiungere Modal per eliminazione
-// - Modificare le funzioni in funzioni asincrone
 // - Fare funzionare il metodo Edit
 
 function App() {
     const [count, setCount] = useState(0);
+
+    // Tags Array
+    const tags = ["Tag 1", "Tag 2", "Tag 3"];
+
+    // Warning text placed at the top of the page
+    const [warningText, setWarningText] = useState("");
+
+    // Edit Mode Controller (contains the ID to modify or undefined)
+    const [isEditing, setIsEditing] = useState(undefined); // Warn that im EDITING an element and not ADDING a new one
+
+    // Show Info Modal
+    const [showInfoModal, setShowInfoModal] = useState(undefined);
+
+    function showInfo(title, body, button) {
+        setShowInfoModal({ title, body, button });
+    }
 
     // Articles Array
     const [articles, setArticles] = useState([]);
@@ -33,6 +47,29 @@ function App() {
     const Store = async (newArticle) => {
         fetch(`${postsApiUrl}/posts`, {
             method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                title: newArticle.title,
+                author: newArticle.author,
+                status: newArticle.status,
+                image: newArticle.image,
+                description: newArticle.description,
+                genre: newArticle.genre,
+                tags: newArticle.tags,
+                publish: newArticle.publish,
+            }),
+        })
+            .then((res) => res)
+            .then((data) => {
+                Index();
+            });
+    };
+
+    const Update = async (newArticle, id) => {
+        fetch(`${postsApiUrl}/posts/${id}`, {
+            method: "PUT",
             headers: {
                 "Content-Type": "application/json",
             },
@@ -78,45 +115,15 @@ function App() {
         publish: false,
     });
 
-    // Tags Array
-    const tags = ["Tag 1", "Tag 2", "Tag 3"];
-
-    // Warning text placed at the top of the page
-    const [warningText, setWarningText] = useState("");
-
-    // Variables
-    const [isEditing, setIsEditing] = useState(undefined); // Warn that im EDITING an element and not ADDING a new one
-
     // On Form Submit
     function handleFormSubmit(e) {
         e.preventDefault();
 
         // Check if an element is being edited
         if (isEditing !== undefined) {
-            const newArticles = [...articles];
-
-            // find the index to change
-            const indexToChange = newArticles.findIndex(
-                (element) => element.id === isEditing
-            );
-
-            // change the index
-            newArticles[indexToChange] = {
-                id: newArticles[indexToChange].id,
-                title: formFields.title,
-                author: formFields.author,
-                genre: formFields.genre,
-                status: formFields.status,
-                description: formFields.description,
-                image: formFields.image,
-                publish: formFields.publish,
-                tags: formFields.tags,
-                isBeingEdited: false,
-            };
-
-            setArticles(newArticles);
-            setIsEditing(undefined);
             setWarningText("");
+            Update(formFields, isEditing);
+            setIsEditing(undefined);
             return;
         }
 
@@ -126,12 +133,17 @@ function App() {
             element.title === formFields.title && (alreadyExist = true);
         });
         if (alreadyExist) {
-            setWarningText("\nQuesto titolo esiste già");
+            // setWarningText("\nQuesto titolo esiste già");
+            showInfo(
+                "Questo articolo esiste già!",
+                "Cambiare il titolo.",
+                "Ok"
+            );
+
             return;
         }
 
         // Add the new Article
-        setWarningText(""); // Reset the warning
         Store(formFields);
     }
 
@@ -156,12 +168,63 @@ function App() {
                 {/* Container */}
                 <div className="mainContainer">
                     {/* WARNING TEXT (Default: empty) */}
-                    <h1 className="underline-red text-center mb-3">
-                        {warningText}
-                    </h1>
+                    {warningText ? (
+                        <h1 className="underline-red text-center mb-3">
+                            {warningText}
+                        </h1>
+                    ) : (
+                        <h1 className="mb-3">&nbsp;</h1>
+                    )}
 
                     {/* FORM */}
                     <form onSubmit={handleFormSubmit} className="row g-3">
+                        {/* INFO MODAL */}
+
+                        {showInfoModal !== undefined && (
+                            <>
+                                <div className="modal-backdrop reset-bootstrap-gutter"></div>
+                                <div
+                                    className="modal fade show d-block "
+                                    tabIndex="-1"
+                                    role="dialog"
+                                >
+                                    <div
+                                        className="modal-dialog "
+                                        role="document"
+                                    >
+                                        <div className="modal-content bg-emphasis">
+                                            {/* Header */}
+                                            <div className="modal-header">
+                                                <h1 className="modal-title fs-3 w-100 text-center text-danger">
+                                                    {showInfoModal.title}
+                                                </h1>
+                                            </div>
+
+                                            {/* Body */}
+                                            <div className="modal-body text-center fs-5">
+                                                {showInfoModal.body}
+                                            </div>
+
+                                            {/* Footer */}
+                                            <div className="modal-footer d-flex justify-content-center">
+                                                <button
+                                                    type="button"
+                                                    className="btn btn-primary px-4"
+                                                    onClick={() => {
+                                                        setShowInfoModal(
+                                                            undefined
+                                                        );
+                                                    }}
+                                                    data-bs-dismiss="modal"
+                                                >
+                                                    {showInfoModal.button}
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </>
+                        )}
                         {/* Title Input */}
                         <div className="col-6">
                             <label htmlFor="inputTitle" className="form-label">
@@ -278,7 +341,6 @@ function App() {
                                     onChange={handleFormChange}
                                     checked={formFields.publish}
                                     name="publish"
-                                    required
                                 />
                                 <label
                                     className="form-check-label"
